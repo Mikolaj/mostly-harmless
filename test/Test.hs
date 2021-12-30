@@ -7,6 +7,7 @@ import           Test.Tasty
 import           Test.Tasty.HUnit
 
 import AD
+import Fit
 
 main :: IO ()
 main = defaultMain tests
@@ -31,6 +32,7 @@ tests :: TestTree
 tests = testGroup "Tests" [ dfTests
                           , gradDescTests
                           , xorTests
+                          , fitTests
                           ]
 
 fX :: VecDualDelta -> DeltaMonad DualDelta
@@ -185,4 +187,10 @@ xorTests = testGroup "XOR neural net tests"
   , testCase "0.1 reluAct ws2 50000"
     $ gradDescShow 0.1 (setLoss reluAct) ws2 50000  -- no cookie
       @?= ([-1.2425352,2.6025252,0.13252532,-1.5821311,1.7432425,-0.72675747,-1.7345629,1.9154371,-0.42541993],2.0)
+  ]
+
+fitTests :: TestTree
+fitTests = testGroup "Differentiable program fitting tests"
+  [ testCase "43422 100 5000 10 1000"
+    $ testFit 43422 100 5000 10 1000 @?= (P, [], 10)
   ]

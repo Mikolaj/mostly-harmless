@@ -102,6 +102,7 @@ library
 
     -- Modules exported by the library.
     exposed-modules:    AD
+                      , Fit
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -112,6 +113,7 @@ library
     -- Other library packages from which modules are imported.
     build-depends:
         base >= 4.10 && < 99
+      , QuickCheck
       , transformers
       , vector
 
