@@ -115,6 +115,34 @@ foldlDelta' f a (vecR, vecD) = do
         in f acc b
   V.ifoldl' g a vecR
 
+mapMDelta :: forall m r. (Monad m, Data.Vector.Unboxed.Unbox r)
+          => (DualDelta r -> m (DualDelta r))
+          -> VecDualDelta r
+          -> m (VecDualDelta r)
+{-# INLINE mapMDelta #-}
+mapMDelta f (vecR, vecD) = do
+  let g :: Int -> Delta r -> m (DualDelta r)
+      g i varX = do
+        let !b = D (vecR V.! i) varX
+        f b
+  toPairOfV <$> V.imapM g vecD
+
+mapDelta :: forall r. Data.Vector.Unboxed.Unbox r
+         => (DualDelta r -> DualDelta r)
+         -> VecDualDelta r
+         -> VecDualDelta r
+{-# INLINE mapDelta #-}
+mapDelta f (vecR, vecD) =
+  let g :: Int -> Delta r -> DualDelta r
+      g i varX =
+        let !b = D (vecR V.! i) varX
+        in f b
+  in toPairOfV $ V.imap g vecD
+
+toPairOfV :: Data.Vector.Unboxed.Unbox r
+          => Data.Vector.Vector (DualDelta r) -> VecDualDelta r
+toPairOfV v = (V.convert $ V.map (\(D u _u') -> u) v, V.map (\(D _u u') -> u') v)
+
 buildVector :: forall s r. (Eq r, Num r, Data.Vector.Unboxed.Unbox r)
             => Int -> DeltaState r -> Delta r
             -> ST s (Data.Vector.Unboxed.Mutable.MVector s r)
@@ -394,10 +422,10 @@ squareDual (D u u') = returnLet $ D (u * u) (Scale (2 * u) u')
 -- In addition to convenience, this eliminates all Delta bindings
 -- coming from binary addition into a single binding
 -- (and so makes automatic fusion possible in the future).
-sumDual :: forall m r. (DeltaMonad r m, Num r)
-        => Data.Vector.Vector (DualDelta r)
+sumDual :: forall m r. (DeltaMonad r m, Num r, Data.Vector.Unboxed.Unbox r)
+        => VecDualDelta r
         -> m (DualDelta r)
-sumDual us = returnLet $ V.foldl' (+) (scalar 0) us
+sumDual us = returnLet $ foldlDelta' (+) (scalar 0) us
 
 -- The same as @sumDual@ but for lists. Inlined to help list fusion,
 -- which is, alas, not guaranteed regardless.
@@ -435,14 +463,13 @@ logisticAct (D u u') = do
   let y = recip (1 + exp (- u))
   returnLet $ D y (Scale (y * (1 - y)) u')
 
-softMaxAct :: (DeltaMonad r m, Floating r)
-           => Data.Vector.Vector (DualDelta r)
-           -> m (Data.Vector.Vector (DualDelta r))
+softMaxAct :: (DeltaMonad r m, Floating r, Data.Vector.Unboxed.Unbox r)
+           => VecDualDelta r -> m (VecDualDelta r)
 softMaxAct us = do
-  let expUs = V.map exp us
+  let expUs = mapDelta exp us
   -- This has to be let-bound, becuse it's used many times below.
   sumExpUs <- sumDual expUs
-  V.mapM (`divideDual` sumExpUs) expUs
+  mapMDelta (`divideDual` sumExpUs) expUs
 
 -- | Compute the output of a neuron, without applying activation function,
 -- from trainable inputs in @xs@ and parameters (the bias and weights)
@@ -459,7 +486,7 @@ softMaxAct us = do
 -- in a class with implementations both on @D@ and on plain @r@.
 sumTrainableInputs :: forall m r.
                         (DeltaMonad r m, Num r, Data.Vector.Unboxed.Unbox r)
-                   => Data.Vector.Vector (DualDelta r)
+                   => VecDualDelta r
                    -> Int
                    -> VecDualDelta r
                    -> m (DualDelta r)
@@ -469,7 +496,7 @@ sumTrainableInputs xs offset vec = do
       f !acc i u =
         let v = var (offset + 1 + i) vec
         in acc + u * v
-  returnLet $ V.ifoldl' f bias xs
+  returnLet $ ifoldlDelta' f bias xs
 
 -- | Compute the output of a neuron, without applying activation function,
 -- from constant data in @xs@ and parameters (the bias and weights)
@@ -497,12 +524,12 @@ lossSquared targ res = squareDual $ res - scalar targ
 lossCrossEntropy
   :: forall m r. (DeltaMonad r m, Floating r, Data.Vector.Unboxed.Unbox r)
   => Data.Vector.Unboxed.Vector r
-  -> Data.Vector.Vector (DualDelta r)
+  -> VecDualDelta r
   -> m (DualDelta r)
 lossCrossEntropy targ res = do
   let f :: DualDelta r -> Int -> DualDelta r -> DualDelta r
       f !acc i d = acc + scale (targ V.! i) (log d)
-  negateDual $ V.ifoldl' f (scalar 0) res
+  negateDual $ ifoldlDelta' f (scalar 0) res
 
 
 

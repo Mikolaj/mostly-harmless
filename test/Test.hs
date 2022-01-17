@@ -280,8 +280,22 @@ outputLayerFit :: DeltaMonad Double m
                -> VecDualDeltaD
                -> m DualDeltaD
 outputLayerFit factivation hiddenVec offset vec = do
-  outSum <- sumTrainableInputs hiddenVec offset vec
+  outSum <- sumTrainableInputsOld hiddenVec offset vec
   factivation outSum
+
+sumTrainableInputsOld :: forall m r.
+                        (DeltaMonad r m, Num r, Data.Vector.Unboxed.Unbox r)
+                   => Data.Vector.Vector (DualDelta r)
+                   -> Int
+                   -> VecDualDelta r
+                   -> m (DualDelta r)
+sumTrainableInputsOld xs offset vec = do
+  let bias = var offset vec
+      f :: DualDelta r -> Int -> DualDelta r -> DualDelta r
+      f !acc i u =
+        let v = var (offset + 1 + i) vec
+        in acc + u * v
+  returnLet $ V.ifoldl' f bias xs
 
 nnFit :: DeltaMonad Double m
       => (DualDeltaD -> m DualDeltaD)
@@ -676,7 +690,25 @@ middleLayerFit3 :: forall m. DeltaMonad Double m
                 -> VecDualDeltaD
                 -> m (Data.Vector.Vector DualDeltaD)
 middleLayerFit3 factivation hiddenVec offset vec =
-  middleLayerMnist factivation hiddenVec offset vec $ V.length hiddenVec
+  middleLayerMnistOld factivation hiddenVec offset vec $ V.length hiddenVec
+
+middleLayerMnistOld :: forall m r.
+                      (DeltaMonad r m, Num r, Data.Vector.Unboxed.Unbox r)
+                 => (DualDelta r -> m (DualDelta r))
+                 -> Data.Vector.Vector (DualDelta r)
+                 -> Int
+                 -> VecDualDelta r
+                 -> Int
+                 -> m (Data.Vector.Vector (DualDelta r))
+middleLayerMnistOld factivation hiddenVec offset vec width = do
+  let nWeightsAndBias = V.length hiddenVec + 1
+      f :: Int -> m (DualDelta r)
+      f i = do
+        outSum <- sumTrainableInputsOld hiddenVec
+                                     (offset + i * nWeightsAndBias)
+                                     vec
+        factivation outSum
+  V.generateM width f
 
 nnFit3 :: DeltaMonad Double m
        => (DualDeltaD -> m DualDeltaD)
