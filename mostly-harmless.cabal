@@ -102,7 +102,9 @@ library
 
     -- Modules exported by the library.
     exposed-modules:  AD
+                      ArrayAD
                       MnistTools
+                      ArrayMnistTools
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -114,6 +116,7 @@ library
     build-depends:
         base >= 4.10 && < 99
       , bytestring
+      , hTensor
       , mnist-idx
       , random
       , transformers
