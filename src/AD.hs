@@ -472,7 +472,8 @@ softMaxAct us = do
   let expUs = V.map exp us
   -- This has to be let-bound, because it's used many times below.
   sumExpUs <- sumDual expUs
-  V.mapM (`divideDual` sumExpUs) expUs
+  let recipSum = recip sumExpUs
+  V.mapM (*\ recipSum) expUs
 
 -- | Compute the output of a neuron, without applying activation function,
 -- from trainable inputs in @xs@ and parameters (the bias and weights)

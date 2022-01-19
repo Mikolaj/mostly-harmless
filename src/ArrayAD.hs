@@ -15,6 +15,12 @@ import qualified Data.Vector
 import qualified Data.Vector.Generic as V
 import qualified Data.Vector.Generic.Mutable as VM
 import qualified Data.Vector.Mutable
+import qualified Data.Vector.Storable
+import           Numeric.LinearAlgebra (konst, sumElements, tr, (#>), (<.>))
+import           Numeric.LinearAlgebra.Array (Array, None (None))
+import           Numeric.LinearAlgebra.Array.Util
+  (Coord, asMatrix, asScalar, asVector, fromMatrix, fromVector)
+import qualified Numeric.LinearAlgebra.Array.Util as Util
 
 -- Tagless final doesn't seem to work well, because we need to gather
 -- @Delta@ while doing @DualDelta@ operations, but evaluate on concrete
@@ -467,17 +473,19 @@ softMaxActV us = do
   let expUs = V.map exp us
   -- This has to be let-bound, because it's used many times below.
   sumExpUs <- sumDual expUs
-  V.mapM (`divideDual` sumExpUs) expUs
+  let recipSum = recip sumExpUs
+  V.mapM (*\ recipSum) expUs
 
-softMaxAct :: (DeltaMonad r m, Floating r)
-           => DualDelta r
-           -> m (DualDelta r)
-softMaxAct u = do
+softMaxAct :: ( DeltaMonad (Array r) m, Floating r
+              , Floating (Data.Vector.Storable.Vector r), Coord r )
+           => DualDelta (Array r)
+           -> m (DualDelta (Array r))
+softMaxAct u@(D ud _) = do
   let expU = exp u
-  undefined
-
---     sumExpUs <- sumDual expUs
---  V.mapM (`divideDual` sumExpUs) expUs
+      sumExpU = sumElements' expU
+      recipSum = recip sumExpU
+      uv = asVector ud
+  returnLet $ konst' recipSum (V.length uv) * expU
 
 -- | Compute the output of a neuron, without applying activation function,
 -- from trainable inputs in @xs@ and parameters (the bias and weights)
@@ -538,14 +546,76 @@ lossCrossEntropyV targ res = do
       f !acc i d = acc + scale (targ V.! i) (log d)
   negateDual $ V.ifoldl' f (scalar 0) res
 
--- In terms of hmatrix: @-(log res <.> targ)@.
 lossCrossEntropy
-  :: forall m r. (DeltaMonad r m, Floating r)
-  => r
-  -> DualDelta r
-  -> m (DualDelta r)
-lossCrossEntropy targ res = undefined
---  negateDual $ scale targ (log res)
+  :: forall m r. ( DeltaMonad (Array r) m, Floating r
+                 , Floating (Data.Vector.Storable.Vector r), Coord r )
+  => Array r
+  -> DualDelta (Array r)
+  -> m (DualDelta (Array r))
+lossCrossEntropy targ res =
+  negateDual $ log res <.>!! targ
+
+-- | Dense matrix-vector product.
+infixr 8 #>!
+(#>!) :: Coord r
+      => DualDelta (Array r) -> DualDelta (Array r) -> DualDelta (Array r)
+(#>!) (D u u') (D v v') =
+  let uM = asMatrix u
+      vV = asVector v
+      uMT = fromMatrix None None (tr uM)
+  in D (fromVector None $ uM #> vV) (Add (Scale v u')  -- probably too naive
+                                         (Scale uMT v'))
+
+-- | Dense matrix-vector product with a constant vector.
+infixr 8 #>!!
+(#>!!) :: Coord r
+       => DualDelta (Array r) -> Array r -> DualDelta (Array r)
+(#>!!) (D u u') v =
+  let uM = asMatrix u
+      vV = asVector v
+  in D (fromVector None $ uM #> vV) (Scale v u')  -- probably too naive
+
+infixr 8 <.>!
+(<.>!) :: Coord r
+       => DualDelta (Array r) -> DualDelta (Array r) -> DualDelta (Array r)
+(<.>!) (D u u') (D v v') =
+  let uV = asVector u
+      vV = asVector v
+  in D (Util.scalar $ uV <.> vV) (Add (Scale v u')  -- probably too naive
+                                      (Scale u v'))
+infixr 8 <.>!!
+(<.>!!) :: Coord r
+        => DualDelta (Array r) -> Array r -> DualDelta (Array r)
+(<.>!!) (D u u') v =
+  let uV = asVector u
+      vV = asVector v
+  in D (Util.scalar $ uV <.> vV) (Scale v u')  -- probably too naive
+
+konst' :: Coord r
+       => DualDelta (Array r) -> Int -> DualDelta (Array r)
+konst' (D u _u') n = D (fromVector None $ konst (asScalar u) n)
+                       Zero  -- definitely wrong; should be sumElements u'
+
+sumElements' :: Coord r
+             => DualDelta (Array r) -> DualDelta (Array r)
+sumElements' (D u _u') =
+  let uV = asVector u
+  in D (Util.scalar $ sumElements uV)
+       Zero  -- definitely wrong; should be konst u' n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

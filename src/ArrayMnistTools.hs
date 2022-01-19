@@ -16,7 +16,7 @@ import qualified Data.Vector.Storable
 import qualified Data.Vector.Unboxed
 import           Foreign.Storable (Storable)
 import           GHC.Exts (inline)
-import           Numeric.LinearAlgebra.Array
+import           Numeric.LinearAlgebra.Array (Array, None (None))
 import           Numeric.LinearAlgebra.Array.Util (Coord, coords, fromVector)
 import           System.IO (IOMode (ReadMode), withBinaryFile)
 import           System.Random
@@ -44,26 +44,26 @@ type MnistData r = (Array r, Array r)
 
 -- We assume all activation functions finish with a Delta-binding
 -- and so we don't have to add one explicitly.
-hiddenLayerMnist :: forall m r. Num r
-                 => (DualDelta r -> m (DualDelta r))
-                 -> r
-                 -> VecDualDelta r
-                 -> m (DualDelta r)
+hiddenLayerMnist :: forall m r. Coord r
+                 => (DualDelta (Array r) -> m (DualDelta (Array r)))
+                 -> Array r
+                 -> VecDualDelta (Array r)
+                 -> m (DualDelta (Array r))
 hiddenLayerMnist factivation x vec = do
   let weights = var vec 0
       biases = var vec 1
-  factivation $ scale x weights + biases
+  factivation $ weights #>!! x + biases
 
-middleLayerMnist :: forall m r. Num r
-                 => (DualDelta r -> m (DualDelta r))
-                 -> DualDelta r
+middleLayerMnist :: forall m r. Coord r
+                 => (DualDelta (Array r) -> m (DualDelta (Array r)))
+                 -> DualDelta (Array r)
                  -> Int
-                 -> VecDualDelta r
-                 -> m (DualDelta r)
+                 -> VecDualDelta (Array r)
+                 -> m (DualDelta (Array r))
 middleLayerMnist factivation hiddenVec offset vec = do
   let weights = var vec offset
       biases = var vec (offset + 1)
-  factivation $ hiddenVec * weights + biases
+  factivation $ weights #>! hiddenVec + biases
 
 -- * 2 hidden layers
 
@@ -76,12 +76,12 @@ lenMnist2 widthHidden widthHidden2 =
 
 -- Two hidden layers of width @widthHidden@ and (the middle one) @widthHidden2@.
 -- Both hidden layers use the same activation function.
-nnMnist2 :: (DeltaMonad r m, Fractional r)
-         => (DualDelta r -> m (DualDelta r))
-         -> (DualDelta r -> m (DualDelta r))
-         -> r
-         -> VecDualDelta r
-         -> m (DualDelta r)
+nnMnist2 :: (DeltaMonad (Array r) m, Coord r)
+         => (DualDelta (Array r) -> m (DualDelta (Array r)))
+         -> (DualDelta (Array r) -> m (DualDelta (Array r)))
+         -> Array r
+         -> VecDualDelta (Array r)
+         -> m (DualDelta (Array r))
 nnMnist2 factivationHidden factivationOutput x vec = do
   hiddenVec <- inline hiddenLayerMnist factivationHidden x vec
   let offsetMiddle = 2  -- first weights and first biases used up
