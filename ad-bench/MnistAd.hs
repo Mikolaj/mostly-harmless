@@ -3,10 +3,10 @@ module Main (main) where
 import Prelude
 
 import Criterion.Main
+import HordeAd.MnistTools
 import System.Random
 
 import MnistAdTools
-import MnistTools
 
 main :: IO ()
 main = do

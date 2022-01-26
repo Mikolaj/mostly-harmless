@@ -188,7 +188,7 @@ nnXorLossTotal factivation vec =
       n34 = n3 + n4
   in n12 + n34
 
--- These tests work on @Float@ in mostly-harmless-test, but here they can't
+-- These tests work on @Float@ in horde-ad/test, but here they can't
 -- because I can't share polymorphic code between @Float@ and @Double@
 -- if I want to use @ReverseDouble@, which is require to plug memory leaks.
 ws, ws2 :: Domain Double

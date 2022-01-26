@@ -6,10 +6,10 @@ import Control.DeepSeq
 import Criterion.Main
 import System.Random
 
+import qualified BenchProdTools
 import qualified ProdAdTools
 import qualified ProdBackpropTools
 import qualified ProdManualTools
-import qualified ProdMostlyHarmlessTools
 
 allxs :: [Double]
 allxs = let xs = map (+ 0.55) $ randoms (mkStdGen 42)
@@ -22,7 +22,7 @@ main = defaultMain
           [ ProdManualTools.bgroup1000 allxs
           ]
       , bgroup "ours"
-          [ ProdMostlyHarmlessTools.bgroup1000 allxs
+          [ BenchProdTools.bgroup1000 allxs
           ]
       , bgroup "ad"
           [ ProdAdTools.bgroup1000 allxs
@@ -36,7 +36,7 @@ main = defaultMain
           [ ProdManualTools.bgroup1e6 allxs
           ]
       , bgroup "ours"
-          [ ProdMostlyHarmlessTools.bgroup1e6 allxs
+          [ BenchProdTools.bgroup1e6 allxs
           ]
       , bgroup "ad"
           [ ProdAdTools.bgroup1e6 allxs
@@ -50,7 +50,7 @@ main = defaultMain
           [ ProdManualTools.bgroup5e7 allxs
           ]
       , bgroup "ours"
-          [ ProdMostlyHarmlessTools.bgroup5e7 allxs
+          [ BenchProdTools.bgroup5e7 allxs
           ]
       , bgroup "ad"
           [ ProdAdTools.bgroup5e7 allxs
