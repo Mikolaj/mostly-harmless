@@ -13,7 +13,7 @@ Some executable tools in this repo:
 
 * `cabal bench prod-backprop` --- library `backprop` benchmark of computing the gradient of a huge product of parameters.
 
-* `cabal bench mnist-backprop` --- library `backprop` benchmark (taken from the `backprop` source code, see https://github.com/Mikolaj/mostly-harmless/blob/master/CREDITS) running MNIST, as for `ad` and `horde-ad`, but using matrix operations (from `hmatrix`) and deducing gradients from dozens of them, instead of millions of scalar operations; two variants `bp-lens` and `bp-hkd` are included and also a benchmark  using a fully handwritten gradient.
+* `cabal bench mnist-backprop` --- library `backprop` benchmark (taken from the `backprop` source code, see https://github.com/Mikolaj/mostly-harmless/blob/master/CREDITS.md) running MNIST, as for `ad` and `horde-ad`, but using matrix operations (from `hmatrix`) and deducing gradients from dozens of them, instead of millions of scalar operations; two variants `bp-lens` and `bp-hkd` are included and also a benchmark  using a fully handwritten gradient.
 
 * `cabal bench prod-all` --- running the huge product benchmark using three handwritten gradients (one of them from library `backprop`) and using a gradient derived from scalar operations by `horde-ad`, `ad` and `backprop`. See a chart at https://combinatronics.com/Mikolaj/mostly-harmless/b9f1ed13b7e549f7f221f2ea4a1033ce59677247/misc-bench/ProdAll-78ba46b.html (but these results may be outdated by the time you read this).
 
