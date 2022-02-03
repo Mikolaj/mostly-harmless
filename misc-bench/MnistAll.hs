@@ -30,7 +30,7 @@ main = do
             [ MnistAdTools.mnistTrainBench2 500 vs 30 10 0.02
             , MnistAdTools.mnistTestBench2 500 vs 30 10
             ]
-        , MnistBackpropTools.backpropBgroupUnboxed3010 xs 500
+        , MnistBackpropTools.backpropBgroupStorable3010 xs 500
         ]
     , env (return $ take 500 testData) $
       \ xs ->
@@ -45,7 +45,7 @@ main = do
             [ MnistAdTools.mnistTrainBench2 500 vs 300 100 0.02
             , MnistAdTools.mnistTestBench2 500 vs 300 100
             ]
-        , MnistBackpropTools.backpropBgroupUnboxed xs 500
+        , MnistBackpropTools.backpropBgroupStorable xs 500
         ]
     , env (return $ take 500 testData) $
       \ xs ->
@@ -61,6 +61,6 @@ main = do
 --            [ MnistAdTools.mnistTrainBench2 500 vs 500 150 0.02
 --            , MnistAdTools.mnistTestBench2 500 vs 500 150
 --            ]
-        , MnistBackpropTools.backpropBgroupUnboxed500150 xs 500
+        , MnistBackpropTools.backpropBgroupStorable500150 xs 500
         ]
     ]

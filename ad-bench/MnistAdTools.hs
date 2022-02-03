@@ -11,7 +11,7 @@ import           Criterion.Main
 import           Data.Reflection (Reifies)
 import qualified Data.Vector
 import qualified Data.Vector.Generic as V
-import qualified Data.Vector.Unboxed
+import qualified Data.Vector.Storable
 import           GHC.Exts (inline)
 import           Numeric.AD.Internal.Reverse.Double (Tape)
 import           Numeric.AD.Mode.Reverse.Double hiding (diff)
@@ -196,8 +196,8 @@ testMnist2 widthHidden widthHidden2 xs res =
                                     widthHidden widthHidden2)
                    xs res
 
-type MnistDataUnboxed = ( Data.Vector.Unboxed.Vector Double
-                        , Data.Vector.Unboxed.Vector Double )
+type MnistDataUnboxed = ( Data.Vector.Storable.Vector Double
+                        , Data.Vector.Storable.Vector Double )
 
 mnistTrainBench2 :: Int -> [MnistData] -> Int -> Int -> Double -> Benchmark
 mnistTrainBench2 chunkLength xs widthHidden widthHidden2 gamma = do

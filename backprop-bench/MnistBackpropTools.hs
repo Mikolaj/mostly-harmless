@@ -22,7 +22,7 @@ import           Data.List (foldl')
 import           Data.Maybe (fromJust)
 import qualified Data.Vector as V
 import qualified Data.Vector.Generic as VG
-import qualified Data.Vector.Unboxed
+import qualified Data.Vector.Storable
 import           GHC.Generics (Generic)
 import           GHC.TypeLits
 import           Lens.Micro
@@ -64,11 +64,11 @@ instance NFData (Network i h1 h2 o)
 
 makeLenses ''Network'
 
-backpropBgroupUnboxed :: [( Data.Vector.Unboxed.Vector Double
-                          , Data.Vector.Unboxed.Vector Double )]
-                      -> Int
-                      -> Benchmark
-backpropBgroupUnboxed test n =
+backpropBgroupStorable :: [( Data.Vector.Storable.Vector Double
+                           , Data.Vector.Storable.Vector Double )]
+                       -> Int
+                       -> Benchmark
+backpropBgroupStorable test n =
   let f (glyphs, labels) =
         ( fromJust $ create $ VG.convert glyphs
         , fromJust $ create $ VG.convert labels )
@@ -119,11 +119,11 @@ backpropBgroup test n =
 
 -- I don't know what extra overhead (and dependencies) a proper type-level
 -- solution would incur, so let's just copy-paste.
-backpropBgroupUnboxed3010 :: [( Data.Vector.Unboxed.Vector Double
-                          , Data.Vector.Unboxed.Vector Double )]
-                      -> Int
-                      -> Benchmark
-backpropBgroupUnboxed3010 test n =
+backpropBgroupStorable3010 :: [( Data.Vector.Storable.Vector Double
+                               , Data.Vector.Storable.Vector Double )]
+                           -> Int
+                           -> Benchmark
+backpropBgroupStorable3010 test n =
   let f (glyphs, labels) =
         ( fromJust $ create $ VG.convert glyphs
         , fromJust $ create $ VG.convert labels )
@@ -172,11 +172,11 @@ backpropBgroup3010 test n =
           ]
       ]
 
-backpropBgroupUnboxed500150 :: [( Data.Vector.Unboxed.Vector Double
-                          , Data.Vector.Unboxed.Vector Double )]
-                      -> Int
-                      -> Benchmark
-backpropBgroupUnboxed500150 test n =
+backpropBgroupStorable500150 :: [( Data.Vector.Storable.Vector Double
+                                 , Data.Vector.Storable.Vector Double )]
+                             -> Int
+                             -> Benchmark
+backpropBgroupStorable500150 test n =
   let f (glyphs, labels) =
         ( fromJust $ create $ VG.convert glyphs
         , fromJust $ create $ VG.convert labels )
