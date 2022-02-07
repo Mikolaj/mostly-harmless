@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, RankNTypes #-}
+{-# LANGUAGE RankNTypes #-}
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 module MnistAdTools where
 
