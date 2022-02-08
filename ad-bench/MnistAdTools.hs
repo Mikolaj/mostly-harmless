@@ -209,8 +209,9 @@ mnistTrainBench2 chunkLength xs widthHidden widthHidden2 gamma = do
       f = nnMnistLoss2 widthHidden widthHidden2
       chunk = take chunkLength xs
       gradd c = gradDescStochastic gamma f c params0
-      name = "train2 "
-             ++ unwords [show widthHidden, show widthHidden2, show nParams]
+      name = ""
+             ++ unwords [ show widthHidden, show widthHidden2
+                        , "s" ++ show nParams ]
   bench name $ whnf gradd chunk
 
 mnistTestBench2 :: Int -> [MnistData] -> Int -> Int -> Benchmark
@@ -219,8 +220,9 @@ mnistTestBench2 chunkLength xs widthHidden widthHidden2 = do
       params0 = V.unfoldrExactN nParams (uniformR (-0.5, 0.5)) $ mkStdGen 33
       chunk = take chunkLength xs
       score c = testMnist2 widthHidden widthHidden2 c params0
-      name = "test2 "
-             ++ unwords [show widthHidden, show widthHidden2, show nParams ]
+      name = "test "
+             ++ unwords [ show widthHidden, show widthHidden2
+                        , "s" ++ show nParams ]
   bench name $ whnf score chunk
 
 mnistTrainBGroup2 :: [MnistDataUnboxed] -> Int -> Benchmark
