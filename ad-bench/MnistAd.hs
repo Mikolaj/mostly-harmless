@@ -3,7 +3,7 @@ module Main (main) where
 import Prelude
 
 import Criterion.Main
-import HordeAd.MnistTools
+import HordeAd.Tool.MnistTools
 import System.Random
 
 import MnistAdTools

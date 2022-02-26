@@ -5,7 +5,7 @@ import Prelude
 import           Control.Arrow ((***))
 import           Criterion.Main
 import qualified Data.Vector.Generic as V
-import           HordeAd.MnistTools
+import           HordeAd.Tool.MnistTools
 import           System.Random
 
 import qualified BenchMnistTools

@@ -214,7 +214,6 @@ benchmark prod-all
       , backprop
       , criterion
       , deepseq
-      , hmatrix
       , horde-ad
       , random
       , vector
