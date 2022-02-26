@@ -196,6 +196,7 @@ benchmark mnist-backprop
       , microlens
       , microlens-th
       , mwc-random
+      , time
       , vector
 
 -- Use a local checkout of horde-ad for this benchmark.
@@ -243,4 +244,5 @@ benchmark mnist-all
       , mwc-random
       , random
       , reflection
+      , time
       , vector

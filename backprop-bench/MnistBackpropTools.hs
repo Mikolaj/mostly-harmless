@@ -14,11 +14,13 @@ module MnistBackpropTools where
 import Prelude
 
 import           Control.DeepSeq
+import           Control.Monad (foldM)
 import           Criterion.Main
 import           Data.Char
 import           Data.Functor.Identity
-import           Data.List (foldl')
+import           Data.List (foldl', sortOn)
 import           Data.Maybe (fromJust)
+import           Data.Time.Clock.POSIX (getPOSIXTime)
 import qualified Data.Vector as V
 import qualified Data.Vector.Storable
 import           GHC.Generics (Generic)
@@ -29,7 +31,14 @@ import           Numeric.Backprop
 import           Numeric.Backprop.Class
 import qualified Numeric.LinearAlgebra as HM
 import           Numeric.LinearAlgebra.Static
+import           System.Random
 import qualified System.Random.MWC as MWC
+
+-- Good enough for QuickCheck, so good enough for me.
+shuffle :: RandomGen g => g -> [a] -> [a]
+shuffle g l =
+  let rnds = randoms g :: [Int]
+  in map fst $ sortOn snd $ zip l rnds
 
 type family HKD f a where
     HKD Identity a = a
@@ -120,7 +129,7 @@ backpropBgroup test n =
 -- I don't know what extra overhead (and dependencies) a proper type-level
 -- solution would incur, so let's just copy-paste.
 backpropBgroupStorable12550 :: [( Data.Vector.Storable.Vector Double
-                               , Data.Vector.Storable.Vector Double )]
+                                , Data.Vector.Storable.Vector Double )]
                            -> Int
                            -> Benchmark
 backpropBgroupStorable12550 test n =
@@ -230,7 +239,7 @@ backpropBgroup500150 test n =
       ]
 
 backpropBgroupStorable2911811 :: [( Data.Vector.Storable.Vector Double
-                                 , Data.Vector.Storable.Vector Double )]
+                                  , Data.Vector.Storable.Vector Double )]
                              -> Int
                              -> Benchmark
 backpropBgroupStorable2911811 test n =
@@ -301,6 +310,33 @@ trainMnist2 :: (Network 784 h1 h2 10
             -> Network 784 h1 h2 10
 {-# INLINE trainMnist2 #-}
 trainMnist2 = foldl'
+
+
+plot500150 :: [( Data.Vector.Storable.Vector Double
+               , Data.Vector.Storable.Vector Double )]
+           -> IO ()
+plot500150 test0 = do
+  let f (glyphs, labels) =
+        ( fromJust $ create glyphs
+        , fromJust $ create labels )
+      test :: [(R 784, R 10)]
+      !test = map f test0
+  g <- MWC.initialize
+       . V.fromList
+       . map (fromIntegral . ord)
+       $ "hello world"
+  !net0 <- MWC.uniformR @(Network 784 500 150 10) (-0.5, 0.5) g
+  let runTest (!net, !times) (x, y) = do
+        let (!netNew, !value) = trainStepManual2 0.02 x y net
+        time <- getPOSIXTime
+        return (netNew, (time, value) : times)
+  timeBefore <- getPOSIXTime
+  (netOut0, timesOut0) <- foldM runTest (net0, []) test
+  let !trainData = shuffle (mkStdGen 7) test
+  (_netOut, timesOut) <- foldM runTest (netOut0, timesOut0) trainData
+  let ppTime (t, l) = init (show (t - timeBefore)) ++ " " ++ show l
+  writeFile "walltimeLoss.txt" $ unlines $ map ppTime timesOut
+
 
 -- ------------------------------
 -- - "Backprop" Lens Mode       -
@@ -477,6 +513,46 @@ gradNetManual x t (Net (Layer w1 b1) (Layer w2 b2) (Layer w3 b3)) =
     in  Net (Layer dEdW1 dEdB1) (Layer dEdW2 dEdB2) (Layer dEdW3 dEdB3)
 {-# INLINE gradNetManual #-}
 
+gradNetManual2
+    :: forall i h1 h2 o. (KnownNat i, KnownNat h1, KnownNat h2, KnownNat o)
+    => R i
+    -> R o
+    -> Network i h1 h2 o
+    -> (Network i h1 h2 o, Double)
+gradNetManual2 x t (Net (Layer w1 b1) (Layer w2 b2) (Layer w3 b3)) =
+    let y1 = w1 #> x
+        z1 = y1 + b1
+        x2 = logistic z1
+        y2 = w2 #> x2
+        z2 = y2 + b2
+        x3 = logistic z2
+        y3 = w3 #> x3
+        z3 = y3 + b3
+        o0 = exp z3
+        o1 = HM.sumElements (extract o0)
+        o2 = o0 / konst o1
+        !o3 = - (log o2 <.> t)
+        dEdO3 = 1
+        dEdO2 = dEdO3 * (- t / o2)
+        dEdO1 = - (dEdO2 <.> o0) / (o1 ** 2)
+        dEdO0 = konst dEdO1 + dEdO2 / konst o1
+        dEdZ3 = dEdO0 * o0
+        dEdY3 = dEdZ3
+        dEdX3 = tr w3 #> dEdY3
+        dEdZ2 = dEdX3 * (x3 * (1 - x3))
+        dEdY2 = dEdZ2
+        dEdX2 = tr w2 #> dEdY2
+        dEdZ1 = dEdX2 * (x2 * (1 - x2))
+        dEdY1 = dEdZ1
+        dEdB3 = dEdZ3
+        dEdW3 = dEdY3 `outer` x3
+        dEdB2 = dEdZ2
+        dEdW2 = dEdY2 `outer` x2
+        dEdB1 = dEdZ1
+        dEdW1 = dEdY1 `outer` x
+    in  (Net (Layer dEdW1 dEdB1) (Layer dEdW2 dEdB2) (Layer dEdW3 dEdB3), o3)
+{-# INLINE gradNetManual2 #-}
+
 trainStepManual
     :: forall i h1 h2 o. (KnownNat i, KnownNat h1, KnownNat h2, KnownNat o)
     => Double
@@ -487,6 +563,17 @@ trainStepManual
 trainStepManual r !x !t !n =
     let gN = gradNetManual x t n
     in  n - (realToFrac r * gN)
+
+trainStepManual2
+    :: forall i h1 h2 o. (KnownNat i, KnownNat h1, KnownNat h2, KnownNat o)
+    => Double
+    -> R i
+    -> R o
+    -> Network i h1 h2 o
+    -> (Network i h1 h2 o, Double)
+trainStepManual2 r !x !t !n =
+    let (gN, value) = gradNetManual2 x t n
+    in  (n - (realToFrac r * gN), value)
 
 -- ------------------------------
 -- - "Hybrid" Mode              -
