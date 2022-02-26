@@ -123,6 +123,28 @@ test-suite ad-test
       , tasty-hunit
       , vector
 
+test-suite plot-test
+    import:           options, exe-options
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   ../horde-ad/test, backprop-bench, test
+    main-is:          PlotTest.hs
+    other-modules:    MnistBackpropTools, TestMnistFC
+    build-depends:
+        base
+      , backprop
+      , criterion
+      , deepseq
+      , hmatrix
+      , horde-ad
+      , microlens
+      , microlens-th
+      , mwc-random
+      , random
+      , tasty >= 1.0
+      , tasty-hunit
+      , time
+      , vector
+
 benchmark prod-manual
     import:           options, exe-options
     type:             exitcode-stdio-1.0
@@ -196,6 +218,7 @@ benchmark mnist-backprop
       , microlens
       , microlens-th
       , mwc-random
+      , random
       , time
       , vector
 
