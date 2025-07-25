@@ -1,4 +1,4 @@
-cabal-version:      2.4
+cabal-version:      3.0
 -- The cabal-version field refers to the version of the .cabal specification,
 -- and can be different from the cabal-install (the tool) version and the
 -- Cabal (the library) version you are using. As such, the Cabal (the library)
@@ -50,13 +50,13 @@ extra-doc-files:    CHANGELOG.md
 -- Extra source files to be distributed with the package, such as examples, or a tutorial module.
 -- extra-source-files:
 
-tested-with:        GHC==8.10.7, GHC==9.0.1, GHC==9.2.1
+-- tested-with:        GHC==8.10.7, GHC==9.0.1, GHC==9.2.1
 
 bug-reports:        https://github.com/Mikolaj/mostly-harmless/issues
 
 source-repository head
   type:               git
-  location:           git://github.com/Mikolaj/mostly-harmless.git
+  location:           https://github.com/Mikolaj/mostly-harmless.git
 
 flag with_expensive_assertions
   description:        turn on expensive assertions of well-tested code
@@ -123,27 +123,27 @@ test-suite ad-test
       , tasty-hunit
       , vector
 
-test-suite plot-test
-    import:           options, exe-options
-    type:             exitcode-stdio-1.0
-    hs-source-dirs:   ../horde-ad/test, backprop-bench, test
-    main-is:          PlotTest.hs
-    other-modules:    MnistBackpropTools, TestMnistFC
-    build-depends:
-        base
-      , backprop
-      , criterion
-      , deepseq
-      , hmatrix
-      , horde-ad
-      , microlens
-      , microlens-th
-      , mwc-random
-      , random
-      , tasty >= 1.0
-      , tasty-hunit
-      , time
-      , vector
+-- test-suite plot-test
+--     import:           options, exe-options
+--     type:             exitcode-stdio-1.0
+--     hs-source-dirs:   ../horde-ad/test, backprop-bench, test
+--     main-is:          PlotTest.hs
+--     other-modules:    MnistBackpropTools
+--     build-depends:
+--         base
+--       , backprop
+--       , criterion
+--       , deepseq
+--       , hmatrix
+--       , horde-ad:testCommonLibrary
+--       , microlens
+--       , microlens-th
+--       , mwc-random
+--       , random
+--       , tasty >= 1.0
+--       , tasty-hunit
+--       , time
+--       , vector
 
 benchmark prod-manual
     import:           options, exe-options
@@ -184,7 +184,7 @@ benchmark mnist-ad
       , ad
       , criterion
       , deepseq
-      , horde-ad
+      , horde-ad:exampleLibrary
       , random
       , reflection
       , vector
@@ -226,10 +226,9 @@ benchmark mnist-backprop
 benchmark prod-all
     import:           options, exe-options
     type:             exitcode-stdio-1.0
-    hs-source-dirs:   misc-bench, ../horde-ad/bench, ad-bench, backprop-bench
+    hs-source-dirs:   misc-bench, ad-bench, backprop-bench
     main-is:          ProdAll.hs
     other-modules:    ProdManualTools
-                      BenchProdTools
                       ProdAdTools
                       ProdBackpropTools
     build-depends:
@@ -238,7 +237,7 @@ benchmark prod-all
       , backprop
       , criterion
       , deepseq
-      , horde-ad
+      , horde-ad:benchCommonLibrary
       , random
       , vector
 
@@ -249,10 +248,9 @@ benchmark prod-all
 benchmark mnist-all
     import:           options, exe-options
     type:             exitcode-stdio-1.0
-    hs-source-dirs:   misc-bench, ../horde-ad/bench, ad-bench, backprop-bench
+    hs-source-dirs:   misc-bench, ad-bench, backprop-bench
     main-is:          MnistAll.hs
-    other-modules:    BenchMnistTools
-                      MnistAdTools
+    other-modules:    MnistAdTools
                       MnistBackpropTools
     build-depends:
         base
@@ -263,7 +261,8 @@ benchmark mnist-all
       , hmatrix
       , microlens
       , microlens-th
-      , horde-ad
+      , horde-ad:benchCommonLibrary
+      , horde-ad:exampleLibrary
       , mwc-random
       , random
       , reflection
