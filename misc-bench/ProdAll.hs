@@ -1,10 +1,10 @@
 module Main (main) where
 
-import Prelude
+import           Prelude
 
-import Control.DeepSeq
-import Criterion.Main
-import System.Random
+import           Control.DeepSeq
+import           Criterion.Main
+import           System.Random
 
 import qualified BenchProdTools
 import qualified ProdAdTools
@@ -21,7 +21,7 @@ main = defaultMain
       [ bgroup "manual"
           [ ProdManualTools.bgroup1000 allxs
           ]
-      , bgroup "ours"
+      , bgroup "horde-ad"
           [ BenchProdTools.bgroup1000 allxs
           ]
       , bgroup "ad"
@@ -31,11 +31,27 @@ main = defaultMain
           [ ProdBackpropTools.bgroup1000 allxs
           ]
       ]
+  , bgroup "1e5"
+      [ bgroup "manual"
+          [ ProdManualTools.bgroup1e5 allxs
+          ]
+      , bgroup "horde-ad"
+          [ BenchProdTools.bgroup1e5 allxs
+          ]
+      , bgroup "ad"
+          [ ProdAdTools.bgroup1e5 allxs
+          ]
+      , bgroup "backprop"
+          [ ProdBackpropTools.bgroup1e5 allxs
+          ]
+      ]
+  ]
+{- too slow:
   , bgroup "1e6"
       [ bgroup "manual"
           [ ProdManualTools.bgroup1e6 allxs
           ]
-      , bgroup "ours"
+      , bgroup "horde-ad"
           [ BenchProdTools.bgroup1e6 allxs
           ]
       , bgroup "ad"
@@ -49,7 +65,7 @@ main = defaultMain
       [ bgroup "manual"
           [ ProdManualTools.bgroup5e7 allxs
           ]
-      , bgroup "ours"
+      , bgroup "horde-ad"
           [ BenchProdTools.bgroup5e7 allxs
           ]
       , bgroup "ad"
@@ -60,3 +76,4 @@ main = defaultMain
           ]
       ]
   ]
+-}

@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 module ProdBackpropTools where
 
-import Prelude
+import           Prelude
 
 import           Criterion.Main
 import qualified Data.Vector
@@ -22,42 +22,42 @@ bgroup100 allxs =
       env (return (take 100 allxs, V.fromList $ take 100 allxs)) $
       \ ~(list, vec) ->
       bgroup "100"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
-        , bench "func_vec" $ nf vec_prod vec
-        , bench "grad_vec" $ nf grad_vec_prod vec
-        , bench "func_handwritten" $ nf handwritten_prod list
-        , bench "grad_handwritten" $ nf grad_handwritten_prod list
-        , bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
+        , {- bench "func_vec" $ nf vec_prod vec
+        , -} bench "grad_vec" $ nf grad_vec_prod vec
+        , {- bench "func_handwritten" $ nf handwritten_prod list
+        , -} bench "grad_handwritten" $ nf grad_handwritten_prod list
+        , {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 bgroup200 allxs =
       env (return (take 200 allxs, V.fromList $ take 200 allxs)) $
       \ ~(list, vec) ->
       bgroup "200"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
-        , bench "func_vec" $ nf vec_prod vec
-        , bench "grad_vec" $ nf grad_vec_prod vec
-        , bench "func_handwritten" $ nf handwritten_prod list
-        , bench "grad_handwritten" $ nf grad_handwritten_prod list
-        , bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
+        , {- bench "func_vec" $ nf vec_prod vec
+        , -} bench "grad_vec" $ nf grad_vec_prod vec
+        , {- bench "func_handwritten" $ nf handwritten_prod list
+        , -} bench "grad_handwritten" $ nf grad_handwritten_prod list
+        , {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 bgroup1000 allxs =
       env (return (take 1000 allxs, V.fromList $ take 1000 allxs)) $
       \ ~(list, vec) ->
       bgroup "1000"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
-        , bench "func_vec" $ nf vec_prod vec
-        , bench "grad_vec" $ nf grad_vec_prod vec
-        , bench "func_handwritten" $ nf handwritten_prod list
-        , bench "grad_handwritten" $ nf grad_handwritten_prod list
-        , bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
+        , {- bench "func_vec" $ nf vec_prod vec
+        , -} bench "grad_vec" $ nf grad_vec_prod vec
+        , {- bench "func_handwritten" $ nf handwritten_prod list
+        , -} bench "grad_handwritten" $ nf grad_handwritten_prod list
+        , {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 bgroup1e4 allxs =
@@ -65,8 +65,8 @@ bgroup1e4 allxs =
       \ vec ->
       bgroup "1e4"
         -- backprop takes quite long, so many benches pruned
-        [ bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 bgroup1e5 allxs =
@@ -74,8 +74,8 @@ bgroup1e5 allxs =
       \ vec ->
       bgroup "1e5"
         -- backprop takes forever except with vector-based handwritten gradients
-        [ bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 bgroup1e6 allxs =
@@ -83,8 +83,8 @@ bgroup1e6 allxs =
       \ vec ->
       bgroup "1e6"
         -- backprop takes forever except with vector-based handwritten gradients
-        [ bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 bgroup1e7 allxs =
@@ -92,8 +92,8 @@ bgroup1e7 allxs =
       \ vec ->
       bgroup "1e7"
         -- backprop takes forever except with vector-based handwritten gradients
-        [ bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 bgroup5e7 allxs =
@@ -101,8 +101,8 @@ bgroup5e7 allxs =
       \ vec ->
       bgroup "5e7"  -- 5e7 == 5 * 10^7 == 0.5 * 10^8 == 0.5e8
         -- backprop takes forever except with vector-based handwritten gradients
-        [ bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
-        , bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
+        [ {- bench "func_handwritten_vec" $ nf handwritten_vec_prod vec
+        , -} bench "grad_handwritten_vec" $ nf grad_handwritten_vec_prod vec
         ]
 
 {-

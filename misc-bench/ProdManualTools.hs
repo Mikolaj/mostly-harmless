@@ -4,12 +4,12 @@
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 module ProdManualTools where
 
-import Criterion.Main
-import System.Random
+import           Criterion.Main
+import           System.Random
 
 -- Product of list of numbers
 prod :: Fractional a => [a] -> a
-prod [x] = x
+prod [x]    = x
 prod (x:xs) = x * prod xs
 
 -- Product of list of numbers
@@ -62,8 +62,8 @@ bgroup100 allxs =
       env (return (take 100 allxs)) $
       \ list ->
       bgroup "100"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         , bench "grad_slow" $ nf grad_prod_slow list
         ]
 
@@ -71,8 +71,8 @@ bgroup200 allxs =
       env (return (take 200 allxs)) $
       \ list ->
       bgroup "200"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         , bench "grad_slow" $ nf grad_prod_slow list
         ]
 
@@ -80,8 +80,8 @@ bgroup1000 allxs =
       env (return (take 1000 allxs)) $
       \ list ->
       bgroup "1000"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         , bench "grad_slow" $ nf grad_prod_slow list
         ]
 
@@ -90,38 +90,38 @@ bgroup1e4 allxs =
       \ list ->
       bgroup "1e4"
         -- grad_slow too slow at this point
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         ]
 
 bgroup1e5 allxs =
       env (return (take 100000 allxs)) $
       \ list ->
       bgroup "1e5"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         ]
 
 bgroup1e6 allxs =
       env (return (take 1000000 allxs)) $
       \ list ->
       bgroup "1e6"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         ]
 
 bgroup1e7 allxs =
       env (return (take 10000000 allxs)) $
       \ list ->
       bgroup "1e7"
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         ]
 
 bgroup5e7 allxs =
       env (return (take 50000000 allxs)) $
       \ list ->
       bgroup "5e7"  -- 5e7 == 5 * 10^7 == 0.5 * 10^8 == 0.5e8
-        [ bench "func" $ nf prod list
-        , bench "grad" $ nf grad_prod list
+        [ {- bench "func" $ nf prod list
+        , -} bench "grad" $ nf grad_prod list
         ]
