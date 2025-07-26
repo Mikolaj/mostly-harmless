@@ -4,8 +4,8 @@
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 module ProdManualTools where
 
-import           Criterion.Main
-import           System.Random
+import Criterion.Main
+import System.Random
 
 -- Product of list of numbers
 prod :: Fractional a => [a] -> a

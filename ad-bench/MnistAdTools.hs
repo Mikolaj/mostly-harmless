@@ -4,18 +4,18 @@ module MnistAdTools where
 
 import Prelude
 
-import           Control.Arrow ((***))
-import           Control.DeepSeq
-import           Control.Exception (assert)
-import           Criterion.Main
-import           Data.Reflection (Reifies)
-import qualified Data.Vector
-import qualified Data.Vector.Generic as V
-import qualified Data.Vector.Storable
-import           GHC.Exts (inline)
-import           Numeric.AD.Internal.Reverse.Double (Tape)
-import           Numeric.AD.Mode.Reverse.Double hiding (diff)
-import           System.Random
+import Control.Arrow ((***))
+import Control.DeepSeq
+import Control.Exception (assert)
+import Criterion.Main
+import Data.Reflection (Reifies)
+import Data.Vector qualified
+import Data.Vector.Generic qualified as V
+import Data.Vector.Storable qualified
+import GHC.Exts (inline)
+import Numeric.AD.Internal.Reverse.Double (Tape)
+import Numeric.AD.Mode.Reverse.Double hiding (diff)
+import System.Random
 
 type Domain r = Data.Vector.Vector r
 

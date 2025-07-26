@@ -1,18 +1,18 @@
 {-# LANGUAGE RankNTypes #-}
 module Main (main) where
 
-import           Prelude
+import Prelude
 
-import           Control.Arrow                      (first)
-import           Data.Reflection                    (Reifies)
-import qualified Data.Vector
-import qualified Data.Vector.Generic                as V
-import qualified Data.Vector.Unboxed
-import           Numeric.AD.Internal.Reverse.Double (Tape)
-import           Numeric.AD.Mode.Reverse.Double     hiding (diff)
-import           System.Random
-import           Test.Tasty
-import           Test.Tasty.HUnit
+import Control.Arrow (first)
+import Data.Reflection (Reifies)
+import Data.Vector qualified
+import Data.Vector.Generic qualified as V
+import Data.Vector.Unboxed qualified
+import Numeric.AD.Internal.Reverse.Double (Tape)
+import Numeric.AD.Mode.Reverse.Double hiding (diff)
+import System.Random
+import Test.Tasty
+import Test.Tasty.HUnit
 
 main :: IO ()
 main = defaultMain tests

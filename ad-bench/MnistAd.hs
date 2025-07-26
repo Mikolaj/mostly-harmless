@@ -1,12 +1,12 @@
 module Main (main) where
 
-import           Prelude
+import Prelude
 
-import           Criterion.Main
-import           MnistData
-import           System.Random
+import Criterion.Main
+import MnistData
+import System.Random
 
-import           MnistAdTools
+import MnistAdTools
 
 main :: IO ()
 main = do

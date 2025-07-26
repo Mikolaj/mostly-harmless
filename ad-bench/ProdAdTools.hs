@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 module ProdAdTools where
 
-import           Prelude
+import Prelude
 
-import           Criterion.Main
-import qualified Data.Vector
-import qualified Data.Vector.Generic            as V
+import Criterion.Main
+import Data.Vector qualified
+import Data.Vector.Generic qualified as V
 
-import           Numeric.AD.Mode.Reverse.Double hiding (diff)
+import Numeric.AD.Mode.Reverse.Double hiding (diff)
 
 bgroup100, bgroup200, bgroup1000, bgroup1e4, bgroup1e5, bgroup1e6, bgroup1e7, bgroup5e7 :: [Double] -> Benchmark
 

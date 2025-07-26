@@ -1,15 +1,15 @@
 module Main (main) where
 
-import           Prelude
+import Prelude
 
-import           Control.DeepSeq
-import           Criterion.Main
-import           System.Random
+import Control.DeepSeq
+import Criterion.Main
+import System.Random
 
-import qualified BenchProdTools
-import qualified ProdAdTools
-import qualified ProdBackpropTools
-import qualified ProdManualTools
+import BenchProdTools qualified
+import ProdAdTools qualified
+import ProdBackpropTools qualified
+import ProdManualTools qualified
 
 allxs :: [Double]
 allxs = let xs = map (+ 0.55) $ randoms (mkStdGen 42)
@@ -17,34 +17,30 @@ allxs = let xs = map (+ 0.55) $ randoms (mkStdGen 42)
 
 main :: IO ()
 main = defaultMain
-  [ bgroup "1000"
-      [ bgroup "manual"
-          [ ProdManualTools.bgroup1000 allxs
-          ]
-      , bgroup "horde-ad"
-          [ BenchProdTools.bgroup1000 allxs
-          ]
-      , bgroup "ad"
-          [ ProdAdTools.bgroup1000 allxs
-          ]
-      , bgroup "backprop"
-          [ ProdBackpropTools.bgroup1000 allxs
-          ]
-      ]
-  , bgroup "1e5"
-      [ bgroup "manual"
-          [ ProdManualTools.bgroup1e5 allxs
-          ]
-      , bgroup "horde-ad"
-          [ BenchProdTools.bgroup1e5 allxs
-          ]
-      , bgroup "ad"
-          [ ProdAdTools.bgroup1e5 allxs
-          ]
-      , bgroup "backprop"
-          [ ProdBackpropTools.bgroup1e5 allxs
-          ]
-      ]
+  [ bgroup "manual gradient"
+    [ ProdManualTools.bgroup1000 allxs
+    ]
+  , bgroup "horde-ad"
+    [ BenchProdTools.bgroup1000 allxs
+    ]
+  , bgroup "ad"
+    [ ProdAdTools.bgroup1000 allxs
+    ]
+  , bgroup "backprop"
+    [ ProdBackpropTools.bgroup1000 allxs
+    ]
+  , bgroup "manual gradient"
+    [ ProdManualTools.bgroup1e5 allxs
+    ]
+  , bgroup "horde-ad"
+    [ BenchProdTools.bgroup1e5 allxs
+    ]
+  , bgroup "ad"
+    [ ProdAdTools.bgroup1e5 allxs
+    ]
+  , bgroup "backprop"
+    [ ProdBackpropTools.bgroup1e5 allxs
+    ]
   ]
 {- too slow:
   , bgroup "1e6"

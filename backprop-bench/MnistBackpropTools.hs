@@ -13,26 +13,26 @@ module MnistBackpropTools where
 
 import Prelude
 
-import           Control.DeepSeq
-import           Control.Monad (foldM)
-import           Criterion.Main
-import           Data.Char
-import           Data.Functor.Identity
-import           Data.List (foldl', sortOn)
-import           Data.Maybe (fromJust)
-import           Data.Time.Clock.POSIX (getPOSIXTime)
-import qualified Data.Vector as V
-import qualified Data.Vector.Storable
-import           GHC.Generics (Generic)
-import           GHC.TypeLits
-import           Lens.Micro
-import           Lens.Micro.TH
-import           Numeric.Backprop
-import           Numeric.Backprop.Class
-import qualified Numeric.LinearAlgebra as HM
-import           Numeric.LinearAlgebra.Static
-import           System.Random
-import qualified System.Random.MWC as MWC
+import Control.DeepSeq
+import Control.Monad (foldM)
+import Criterion.Main
+import Data.Char
+import Data.Functor.Identity
+import Data.List (foldl', sortOn)
+import Data.Maybe (fromJust)
+import Data.Time.Clock.POSIX (getPOSIXTime)
+import Data.Vector qualified as V
+import Data.Vector.Storable qualified
+import GHC.Generics (Generic)
+import GHC.TypeLits
+import Lens.Micro
+import Lens.Micro.TH
+import Numeric.Backprop
+import Numeric.Backprop.Class
+import Numeric.LinearAlgebra qualified as HM
+import Numeric.LinearAlgebra.Static
+import System.Random
+import System.Random.MWC qualified as MWC
 
 -- Good enough for QuickCheck, so good enough for me.
 shuffle :: RandomGen g => g -> [a] -> [a]
@@ -91,10 +91,10 @@ backpropBgroup test n =
       net <- MWC.uniformR @(Network 784 300 100 10) (-0.5, 0.5) g
       return (take n test, net)) $
     \ ~(test0, net0) ->
-    bgroup "train"
+    bgroup "backprop"
 --      [ bgroup "gradient"
 --          [ let runTest x y     = gradNetManual x y net0
---            in  bench "manual"  $ nf (uncurry runTest) test0
+--            in  bench "handwritten"  $ nf (uncurry runTest) test0
 --          , let runTest x y     = gradBP (netErr x y) net0
 --            in  bench "bp-lens" $ nf (uncurry runTest) test0
 --          , let runTest x y     = gradBP (netErrHKD x y) net0
@@ -102,21 +102,17 @@ backpropBgroup test n =
 --          , let runTest x y     = gradBP (\n' -> netErrHybrid n' y x) net0
 --            in  bench "hybrid"  $ nf (uncurry runTest) test0
 --          ]
-      [ bgroup "hmatrix"
-          [ let runTest !net (x, y) = trainStepManual 0.02 x y net
-            in  bench "manual"  $ nf (trainMnist2 runTest net0) test0
-          ]
-      , bgroup "backprop"
-          [ let runTest !net (x, y) = trainStep 0.02 x y net
-            in  bench "bp-lens" $ nf (trainMnist2 runTest net0) test0
-          , let runTest !net (x, y) = trainStepHKD 0.02 x y net
-            in  bench "bp-hkd"  $ nf (trainMnist2 runTest net0) test0
+      [ let runTest !net (x, y) = trainStepManual 0.02 x y net
+        in  bench "handwritten"  $ nf (trainMnist2 runTest net0) test0
+      , let runTest !net (x, y) = trainStep 0.02 x y net
+        in  bench "bp-lens" $ nf (trainMnist2 runTest net0) test0
+      , let runTest !net (x, y) = trainStepHKD 0.02 x y net
+        in  bench "bp-hkd"  $ nf (trainMnist2 runTest net0) test0
 --          , let runTest x y     = trainStepHybrid 0.02 x y net0
 --            in  bench "hybrid"  $ nf (uncurry runTest) test0
-          ]
 --      , bgroup "test"
 --          [ let runTest         = runNetManual net0
---            in  bench "manual"  $ nf (testMnist2 runTest) test0
+--            in  bench "handwritten"  $ nf (testMnist2 runTest) test0
 --          , let runTest x       = evalBP (`runNetwork` x) net0
 --            in  bench "bp-lens" $ nf (testMnist2 runTest) test0
 --          , let runTest x       = evalBP (`runNetworkHKD` x) net0
@@ -128,18 +124,18 @@ backpropBgroup test n =
 
 -- I don't know what extra overhead (and dependencies) a proper type-level
 -- solution would incur, so let's just copy-paste.
-backpropBgroupStorable12550 :: [( Data.Vector.Storable.Vector Double
-                                , Data.Vector.Storable.Vector Double )]
-                           -> Int
-                           -> Benchmark
-backpropBgroupStorable12550 test n =
+backpropBgroupStorable125_50 :: [( Data.Vector.Storable.Vector Double
+                                 , Data.Vector.Storable.Vector Double )]
+                             -> Int
+                             -> Benchmark
+backpropBgroupStorable125_50 test n =
   let f (glyphs, labels) =
         ( fromJust $ create glyphs
         , fromJust $ create labels )
-  in backpropBgroup12550 (map f test) n
+  in backpropBgroup125_50 (map f test) n
 
-backpropBgroup12550 :: [(R 784, R 10)] -> Int -> Benchmark
-backpropBgroup12550 test n =
+backpropBgroup125_50 :: [(R 784, R 10)] -> Int -> Benchmark
+backpropBgroup125_50 test n =
     env (do
       g <- MWC.initialize
            . V.fromList
@@ -148,10 +144,10 @@ backpropBgroup12550 test n =
       net <- MWC.uniformR @(Network 784 125 50 10) (-0.5, 0.5) g
       return (take n test, net)) $
     \ ~(test0, net0) ->
-    bgroup "train"
+    bgroup "backprop"
 --      [ bgroup "gradient"
 --          [ let runTest x y     = gradNetManual x y net0
---            in  bench "manual"  $ nf (uncurry runTest) test0
+--            in  bench "handwritten"  $ nf (uncurry runTest) test0
 --          , let runTest x y     = gradBP (netErr x y) net0
 --            in  bench "bp-lens" $ nf (uncurry runTest) test0
 --          , let runTest x y     = gradBP (netErrHKD x y) net0
@@ -159,21 +155,17 @@ backpropBgroup12550 test n =
 --          , let runTest x y     = gradBP (\n' -> netErrHybrid n' y x) net0
 --            in  bench "hybrid"  $ nf (uncurry runTest) test0
 --          ]
-      [ bgroup "hmatrix"
-          [ let runTest !net (x, y) = trainStepManual 0.02 x y net
-            in  bench "manual"  $ nf (trainMnist2 runTest net0) test0
-          ]
-      , bgroup "backprop"
-          [ let runTest !net (x, y) = trainStep 0.02 x y net
-            in  bench "bp-lens" $ nf (trainMnist2 runTest net0) test0
-          , let runTest !net (x, y) = trainStepHKD 0.02 x y net
-            in  bench "bp-hkd"  $ nf (trainMnist2 runTest net0) test0
+      [ let runTest !net (x, y) = trainStepManual 0.02 x y net
+        in  bench "handwritten"  $ nf (trainMnist2 runTest net0) test0
+      , let runTest !net (x, y) = trainStep 0.02 x y net
+        in  bench "bp-lens" $ nf (trainMnist2 runTest net0) test0
+      , let runTest !net (x, y) = trainStepHKD 0.02 x y net
+        in  bench "bp-hkd"  $ nf (trainMnist2 runTest net0) test0
 --          , let runTest x y     = trainStepHybrid 0.02 x y net0
 --            in  bench "hybrid"  $ nf (uncurry runTest) test0
-          ]
 --      , bgroup "test"
 --          [ let runTest         = runNetManual net0
---            in  bench "manual"  $ nf (testMnist2 runTest) test0
+--            in  bench "handwritten"  $ nf (testMnist2 runTest) test0
 --          , let runTest x       = evalBP (`runNetwork` x) net0
 --            in  bench "bp-lens" $ nf (testMnist2 runTest) test0
 --          , let runTest x       = evalBP (`runNetworkHKD` x) net0
@@ -183,30 +175,30 @@ backpropBgroup12550 test n =
 --          ]
       ]
 
-backpropBgroupStorable500150 :: [( Data.Vector.Storable.Vector Double
-                                 , Data.Vector.Storable.Vector Double )]
-                             -> Int
-                             -> Benchmark
-backpropBgroupStorable500150 test n =
+backpropBgroupStorable1000_300 :: [( Data.Vector.Storable.Vector Double
+                                   , Data.Vector.Storable.Vector Double )]
+                               -> Int
+                               -> Benchmark
+backpropBgroupStorable1000_300 test n =
   let f (glyphs, labels) =
         ( fromJust $ create glyphs
         , fromJust $ create labels )
-  in backpropBgroup500150 (map f test) n
+  in backpropBgroup1000_300 (map f test) n
 
-backpropBgroup500150 :: [(R 784, R 10)] -> Int -> Benchmark
-backpropBgroup500150 test n =
+backpropBgroup1000_300 :: [(R 784, R 10)] -> Int -> Benchmark
+backpropBgroup1000_300 test n =
     env (do
       g <- MWC.initialize
            . V.fromList
            . map (fromIntegral . ord)
            $ "hello world"
-      net <- MWC.uniformR @(Network 784 500 150 10) (-0.5, 0.5) g
+      net <- MWC.uniformR @(Network 784 1000 300 10) (-0.5, 0.5) g
       return (take n test, net)) $
     \ ~(test0, net0) ->
-    bgroup "train"
+    bgroup "backprop"
 --      [ bgroup "gradient"
 --          [ let runTest x y     = gradNetManual x y net0
---            in  bench "manual"  $ nf (uncurry runTest) test0
+--            in  bench "handwritten"  $ nf (uncurry runTest) test0
 --          , let runTest x y     = gradBP (netErr x y) net0
 --            in  bench "bp-lens" $ nf (uncurry runTest) test0
 --          , let runTest x y     = gradBP (netErrHKD x y) net0
@@ -214,76 +206,17 @@ backpropBgroup500150 test n =
 --          , let runTest x y     = gradBP (\n' -> netErrHybrid n' y x) net0
 --            in  bench "hybrid"  $ nf (uncurry runTest) test0
 --          ]
-      [ bgroup "hmatrix"
-          [ let runTest !net (x, y) = trainStepManual 0.02 x y net
-            in  bench "manual"  $ nf (trainMnist2 runTest net0) test0
-          ]
-      , bgroup "backprop"
-          [ let runTest !net (x, y) = trainStep 0.02 x y net
-            in  bench "bp-lens" $ nf (trainMnist2 runTest net0) test0
-          , let runTest !net (x, y) = trainStepHKD 0.02 x y net
-            in  bench "bp-hkd"  $ nf (trainMnist2 runTest net0) test0
+      [ let runTest !net (x, y) = trainStepManual 0.02 x y net
+        in  bench "handwritten"  $ nf (trainMnist2 runTest net0) test0
+      , let runTest !net (x, y) = trainStep 0.02 x y net
+        in  bench "bp-lens" $ nf (trainMnist2 runTest net0) test0
+      , let runTest !net (x, y) = trainStepHKD 0.02 x y net
+        in  bench "bp-hkd"  $ nf (trainMnist2 runTest net0) test0
 --          , let runTest x y     = trainStepHybrid 0.02 x y net0
 --            in  bench "hybrid"  $ nf (uncurry runTest) test0
-          ]
 --      , bgroup "test"
 --          [ let runTest         = runNetManual net0
---            in  bench "manual"  $ nf (testMnist2 runTest) test0
---          , let runTest x       = evalBP (`runNetwork` x) net0
---            in  bench "bp-lens" $ nf (testMnist2 runTest) test0
---          , let runTest x       = evalBP (`runNetworkHKD` x) net0
---            in  bench "bp-hkd"  $ nf (testMnist2 runTest) test0
---          , let runTest x       = evalBP (`runNetHybrid` x) net0
---            in  bench "hybrid"  $ nf runTest (fst test0)
---          ]
-      ]
-
-backpropBgroupStorable2911811 :: [( Data.Vector.Storable.Vector Double
-                                  , Data.Vector.Storable.Vector Double )]
-                             -> Int
-                             -> Benchmark
-backpropBgroupStorable2911811 test n =
-  let f (glyphs, labels) =
-        ( fromJust $ create glyphs
-        , fromJust $ create labels )
-  in backpropBgroup2911811 (map f test) n
-
-backpropBgroup2911811 :: [(R 784, R 10)] -> Int -> Benchmark
-backpropBgroup2911811 test n =
-    env (do
-      g <- MWC.initialize
-           . V.fromList
-           . map (fromIntegral . ord)
-           $ "hello world"
-      net <- MWC.uniformR @(Network 784 2911 811 10) (-0.5, 0.5) g
-      return (take n test, net)) $
-    \ ~(test0, net0) ->
-    bgroup "train"
---      [ bgroup "gradient"
---          [ let runTest x y     = gradNetManual x y net0
---            in  bench "manual"  $ nf (uncurry runTest) test0
---          , let runTest x y     = gradBP (netErr x y) net0
---            in  bench "bp-lens" $ nf (uncurry runTest) test0
---          , let runTest x y     = gradBP (netErrHKD x y) net0
---            in  bench "bp-hkd"  $ nf (uncurry runTest) test0
---          , let runTest x y     = gradBP (\n' -> netErrHybrid n' y x) net0
---            in  bench "hybrid"  $ nf (uncurry runTest) test0
---          ]
-      [ bgroup "hmatrix"
-          [ let runTest !net (x, y) = trainStepManual 0.02 x y net
-            in  bench "manual"  $ nf (trainMnist2 runTest net0) test0
-          ]
-      , bgroup "backprop"
-          [ let runTest !net (x, y) = trainStep 0.02 x y net
-            in  bench "bp-lens" $ nf (trainMnist2 runTest net0) test0
-          , let runTest !net (x, y) = trainStepHKD 0.02 x y net
-            in  bench "bp-hkd"  $ nf (trainMnist2 runTest net0) test0
---          , let runTest x y     = trainStepHybrid 0.02 x y net0
---            in  bench "hybrid"  $ nf (uncurry runTest) test0
-          ]
---      , bgroup "test"
---          [ let runTest         = runNetManual net0
---            in  bench "manual"  $ nf (testMnist2 runTest) test0
+--            in  bench "handwritten"  $ nf (testMnist2 runTest) test0
 --          , let runTest x       = evalBP (`runNetwork` x) net0
 --            in  bench "bp-lens" $ nf (testMnist2 runTest) test0
 --          , let runTest x       = evalBP (`runNetworkHKD` x) net0

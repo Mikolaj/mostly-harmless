@@ -1,14 +1,14 @@
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
 module ProdBackpropTools where
 
-import           Prelude
+import Prelude
 
-import           Criterion.Main
-import qualified Data.Vector
-import qualified Data.Vector.Generic as V
+import Criterion.Main
+import Data.Vector qualified
+import Data.Vector.Generic qualified as V
 
-import           Numeric.Backprop
-import qualified Prelude.Backprop
+import Numeric.Backprop
+import Prelude.Backprop qualified
 
 -- TODO: this is probably naive. Revisit once we understand backprop better.
 

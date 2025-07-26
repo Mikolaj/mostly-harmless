@@ -1,16 +1,16 @@
 module Main (main) where
 
-import           Prelude
+import Prelude
 
-import           Control.Arrow       ((***))
-import           Criterion.Main
-import qualified Data.Vector.Generic as V
-import           System.Random
+import Control.Arrow ((***))
+import Criterion.Main
+import Data.Vector.Generic qualified as V
+import System.Random
 
-import qualified BenchMnistTools
-import qualified MnistAdTools
-import qualified MnistBackpropTools
-import           MnistData
+import BenchMnistTools qualified
+import MnistAdTools qualified
+import MnistBackpropTools qualified
+import MnistData
 
 main :: IO ()
 main = do
@@ -19,7 +19,7 @@ main = do
   defaultMain
     [ env (return $ take 100 testData) $
       \ xs ->
-      bgroup "125|50"
+      bgroup "widths 125 50"
         [ -- The horde-ad version additionally keeps some parameters
           -- as Float and converts all the time between Float and Double,
           -- but this is not a significant overhead.
@@ -31,7 +31,7 @@ main = do
             , BenchMnistTools.mnistTrainBench2VTA "" 125 50 0.02 100 vs
             , BenchMnistTools.mnistTrainBench2VTO "" 125 50 0.02 100 vs
             ]
-        , MnistBackpropTools.backpropBgroupStorable12550 xs 100
+        , MnistBackpropTools.backpropBgroupStorable125_50 xs 100
         , env (return $! map (V.convert *** V.convert) xs) $
           \ vs ->
           bgroup "ad"
@@ -40,35 +40,15 @@ main = do
         ]
     , env (return $ take 100 testData) $
       \ xs ->
-      bgroup "500|150"
+      bgroup "widths 1000 300"
         [ env (return $! map mkMnistDataLinearR xs) $
           \ vs ->
           bgroup "horde-ad"
-            [ BenchMnistTools.mnistTrainBench1VTA "" 500 150 0.02 100 vs
-            , BenchMnistTools.mnistTrainBench1VTO "" 500 150 0.02 100 vs
-            , BenchMnistTools.mnistTrainBench2VTA "" 500 150 0.02 100 vs
-            , BenchMnistTools.mnistTrainBench2VTO "" 500 150 0.02 100 vs
+            [ BenchMnistTools.mnistTrainBench1VTA "" 1000 300 0.02 100 vs
+            , BenchMnistTools.mnistTrainBench1VTO "" 1000 300 0.02 100 vs
+            , BenchMnistTools.mnistTrainBench2VTA "" 1000 300 0.02 100 vs
+            , BenchMnistTools.mnistTrainBench2VTO "" 1000 300 0.02 100 vs
             ]
-        , MnistBackpropTools.backpropBgroupStorable500150 xs 100
--- too slow
---        , env (return $! map (V.convert *** V.convert) xs) $
---          \ vs ->
---          bgroup "ad"
---            [ MnistAdTools.mnistTrainBench2 100 vs 500 150 0.02
---            , MnistAdTools.mnistTestBench2 100 vs 500 150
---            ]
-        ]
-    , env (return $ take 100 testData) $
-      \ xs ->
-      bgroup "2911|811"
-        [ env (return $! map mkMnistDataLinearR xs) $
-          \ vs ->
-          bgroup "horde-ad"
-            [ BenchMnistTools.mnistTrainBench1VTA "" 2911 811 0.02 100 vs
-            , BenchMnistTools.mnistTrainBench1VTO "" 2911 811 0.02 100 vs
-            , BenchMnistTools.mnistTrainBench2VTA "" 2911 811 0.02 100 vs
-            , BenchMnistTools.mnistTrainBench2VTO "" 2911 811 0.02 100 vs
-            ]
-        , MnistBackpropTools.backpropBgroupStorable2911811 xs 100
+        , MnistBackpropTools.backpropBgroupStorable1000_300 xs 100
         ]
     ]
