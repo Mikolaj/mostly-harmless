@@ -20,7 +20,10 @@ main = do
     [ env (return $ take 100 testData) $
       \ xs ->
       bgroup "125|50"
-        [ env (return $! map mkMnistDataLinearR xs) $
+        [ -- The horde-ad version additionally keeps some parameters
+          -- as Float and converts all the time between Float and Double,
+          -- but this is not a significant overhead.
+          env (return $! map mkMnistDataLinearR xs) $
           \ vs ->
           bgroup "horde-ad"
             [ BenchMnistTools.mnistTrainBench1VTA "" 125 50 0.02 100 vs
