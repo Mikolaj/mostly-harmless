@@ -1,15 +1,15 @@
 {-# LANGUAGE RankNTypes #-}
 module Main (main) where
 
-import Prelude
+import           Prelude
 
-import           Control.Arrow (first)
-import           Data.Reflection (Reifies)
+import           Control.Arrow                      (first)
+import           Data.Reflection                    (Reifies)
 import qualified Data.Vector
-import qualified Data.Vector.Generic as V
+import qualified Data.Vector.Generic                as V
 import qualified Data.Vector.Unboxed
 import           Numeric.AD.Internal.Reverse.Double (Tape)
-import           Numeric.AD.Mode.Reverse.Double hiding (diff)
+import           Numeric.AD.Mode.Reverse.Double     hiding (diff)
 import           System.Random
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -87,7 +87,7 @@ fblowup vec =
   in blowup 100 y0
 
 gradDescTests :: TestTree
-gradDescTests = testGroup "Simple gradient descent tests (errors are expected here and in all latter tests, because the declared results come from the main library)"
+gradDescTests = testGroup "Simple gradient descent tests (errors are expected here and in all latter tests, because the declared results come from horde-ad)"
   -- and library ad applies the floating point operations in different order,
   -- resulting in accumulation of tiny differences;
   -- and also here and in the adXorTests testsuite the ad library
@@ -118,9 +118,11 @@ gradDescTests = testGroup "Simple gradient descent tests (errors are expected he
   , testCase "blowup 0.01 300000"
     $ gradDescShow 0.01 fblowup (V.fromList [2, 3]) 300000
       @?= ([3.5e-44,3.5e-44],4.9999523)
+{- TODO: ad started OOMing here (2 years ago it didn't)
   , testCase "blowup 0.01 3000000"
     $ gradDescShow 0.01 fblowup (V.fromList [2, 3]) 3000000
       @?= ([3.5e-44,3.5e-44],4.9999523)
+-}
   ]
 
 tanhAct :: Floating r
