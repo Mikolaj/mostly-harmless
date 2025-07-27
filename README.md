@@ -1,7 +1,14 @@
 # mostly-harmless
-This is a discussion, draft and notebook repo for largely benign automatic differentiation experiments, in particular using library https://github.com/Mikolaj/horde-ad.
+This is a discussion, draft and notebook repo for largely benign automatic differentiation experiments, in particular using the library https://hackage.haskell.org/package/horde-ad.
 
-To compile portions of this repo you need a local checkout of `horde-ad` at `../` and a `cabal.project.local` file that contains the line `packages: ../horde-ad`.
+Preliminary benchmark results, with GHC 9.10.2. Once GHC 9.14 is out, this will be re-benchmarked and horde-ad will be optimized using the results.
+
+* `cabal bench prod-all` --- running the huge product benchmark using three handwritten gradients (one of them from library `backprop`) and using various flavours of automatic differentiation of `horde-ad`, `ad` and `backprop`: https://rawcdn.githack.com/Mikolaj/mostly-harmless/14fd6f5173335470756c88aab40e909df6c40953/misc-bench/ProdAll-initial-GHC9.10.2.html
+
+* `cabal bench mnist-all` --- running the MNIST benchmark using various flavours of automatic differentiation of `horde-ad`, `ad` and `backprop`, the latter also with a completely handwritten gradient: https://rawcdn.githack.com/Mikolaj/mostly-harmless/14fd6f5173335470756c88aab40e909df6c40953/misc-bench/MnistAll-initial-GHC9.10.2.html
+
+
+## Old content, including benchmark results for 2022 horde-ad
 
 Some executable tools in this repo:
 
